@@ -88,8 +88,44 @@
             
 
 (defn option3
-  [] ;parm(s) can be provided here, if needed
-)
+  [students]
+  (print "\nPlease enter the student's last name => ")
+  (flush)
+  (let [input-last-name (read-line)
+        last-name (str/lower-case input-last-name)]
+    
+    (if (re-matches #"[a-zA-Z]+" last-name) ; check if the last name is valid
+      (let [matching-students (filter #(= last-name (str/lower-case (:last-name %))) ;Check for case-insensitive match
+                                      students)]
+        (if (empty? matching-students)
+          (println "\nNo student with that last name found. Please try again.")
+          (do
+            (println "\n****************************************")
+            (println "*  STUDENT INFORMATION - LAST NAME   *")
+            (println "****************************************")
+            (println (format "%-10s | %-15s | %-15s" "ID" "First Name" "Last Name"))
+            (println "----------------------------------------------")
+            (doseq [student matching-students]
+              (println (format "%-10s | %-15s | %-15s"
+                               (:id student)
+                               (:first-name student)
+                               (:last-name student))))
+            (println "----------------------------------------------")
+            ;; For each matching student, print grade details.
+            (doseq [student matching-students]
+              (when-let [grades (:grades student)]
+                (println (format "\nGrades for student %s:" (:id student)))
+                (println (format "%-12s | %-10s | %-8s" "Component" "Weight" "Grade"))
+                (println "--------------------------------------------")
+                (doseq [[comp details] grades]
+                  (println (format "%-12s | %-10s | %-8s"
+                                   comp
+                                   (:weight details)
+                                   (:grade details))))
+                (println)))
+            (println "****************************************\n"))))
+      (println "\nInvalid input. Please enter a valid last name."))))
+
 
 ; Replace the println expression with your own code
 (defn option4
