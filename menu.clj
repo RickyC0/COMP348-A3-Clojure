@@ -127,19 +127,48 @@
       (println "\nInvalid input. Please enter a valid last name."))))
 
 
-; Replace the println expression with your own code
+
 (defn option4
-  [students] ;parm(s) can be provided here, if needed
-  (print "\nRunning the test code"))
-
-  
-
+  [students]
+  (print "\nPlease enter the component => ")
+  (flush)
+  (let [component (-> (read-line)
+                      str/trim
+                      str/upper-case)]
+    
+    (if (re-matches #"[a-zA-Z1-9]+" component)  ; Validate the input is alphabetic
+      (let [matching-students (filter #(contains? (:grades %) component)
+                                      students)]
+        (if (empty? matching-students)
+          (println "\nThe component" component "was not found for any student.")
+          (do
+            (println "\n****************************************")
+            (println "*       Grades for Component:      *")
+            (println "****************************************")
+            (println (format "%-10s | %-15s" "Student ID" "Grade"))
+            (println "--------------------------------")
+            (doseq [student matching-students]
+              (println (format "%-10s | %-15s"
+                               (:id student)
+                               (get-in student [:grades component :grade]))))
+            (println "--------------------------------")
+            (println (format "Total Students with component %s: %d" component (count matching-students)))
+            ;Average logic
+             (let [grade-values (map #(Double/parseDouble (get-in % [:grades component :grade]))
+                                    matching-students)
+                  total (reduce + grade-values)
+                  avg (if (pos? (count grade-values))
+                        (/ total (count grade-values))
+                        0)]
+              (println (format "The average is: %.2f" avg)))
+            (println "****************************************\n"))))
+      (println "\nInvalid input. Please enter a valid component."))))
 
 
 ; If the menu selection is valid, call the relevant function to 
 ; process the selection
 (defn processOption
-  [option,students] ; other parm(s) can be provided here, if needed
+  [option,students] 
   (if( = option "1")
      (option1 students)
     
@@ -147,10 +176,10 @@
         (option2 students)
        
         (if( = option "3")
-           (option3 students)  ; other args(s) can be passed here, if needed
+           (option3 students)  
           
            (if( = option "4")
-              (option4 students)   ; other args(s) can be passed here, if needed
+              (option4 students)   
               (println "Invalid Option, please try again"))))))
 
 
@@ -160,11 +189,12 @@
   [students] ; parm(s) can be provided here, if needed
   (let [option (str/trim (showMenu))]
     (if (= option "6")
-      (println "\nGood Bye\n") 
-
       (do 
-         (processOption option, students)
-         (recur students)))))   ; other args(s) can be passed here, if needed
+        (println "\nGood Bye\n") 
+        (System/exit 0)) ; Exit the program
+      (do 
+        (processOption option students)
+        (recur students)))))   
 
 ; ------------------------------
 ; Run the program. You might want to prepare the data required for the mapping operations

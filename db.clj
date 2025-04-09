@@ -17,7 +17,10 @@
 
 (defn parse-student-record
   "Parses a vector of CSV fields for a student record into a map.
-   Assumes that the first three fields are id, first name, and last name, and the rest of the fields are grade data."
+   Assumes that the first three fields are id, first name, and last name, and the rest of the fields are grade data.
+   The rest of the fields are expected to be in the format: <component>,<weight>,<grade>.
+   Returns a map with keys :id, :first-name, :last-name, and :grades. where :grades is a map of component names to their respective weights and grades."
+
   [record]
   (let [id         (first record)
         first-name (second record)
