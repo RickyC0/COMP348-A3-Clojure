@@ -1,8 +1,7 @@
 (ns menu
-  (:require [clojure.string :as str])
-  (:require [clojure.java.io :as io])
-  ; this is where you would also include/require the compress module 
-)
+  (:require [clojure.string :as str]))
+
+
   
 ; Display the menu and ask the user for the option
 (defn showMenu
@@ -40,25 +39,63 @@
   (println "****************************************\n"))
 
     
+(defn key-students-by-id [students]
+  (into {} (map (fn [student]
+                  [(:id student) student])
+                students)))
     
-; Replace the println expression with your own code
+;; Function that displays the student record based on the ID
+;; The ID is expected to be 8 digits long
+;; The function will keep asking for the ID until a valid one is provided
 (defn option2
-  [] ;parm(s) can be provided here, if needed
-  (print "\nPlease enter something => ") 
+  [students]
+  
+  (print "\nPlease enter the student's ID (8 digits) => ")
   (flush)
-  (let [sample-input (read-line)]
-     (println "Process" sample-input)))
+  (let [id (read-line)
+        students (key-students-by-id students)] ; Convert the vector to a map for faster lookups
+    (if (re-matches #"\d{8}" id) ; check if the ID is 8 digits
+      (if-let [student (get students id)]
+        (do
+          (println "\n****************************************")
+          (println "*         STUDENT INFORMATION          *")
+          (println "****************************************")
+          (println (format "%-10s | %-15s | %-15s" "ID" "First Name" "Last Name"))
+          (println "----------------------------------------------")
+          (println (format "%-10s | %-15s | %-15s"
+                           (:id student)
+                           (:first-name student)
+                           (:last-name student)))
+          (println "----------------------------------------------")
+          (when-let [grades (:grades student)]
+            (println "\nGrades:")
+            (println (format "%-12s | %-10s | %-8s" "Component" "Weight" "Grade"))
+            (println "--------------------------------------------")
+            (doseq [[comp details] grades]
+              (println (format "%-12s | %-10s | %-8s"
+                               comp
+                               (:weight details)
+                               (:grade details)))))
+          (println "****************************************\n"))
+            
+        (do
+          (println "Student ID not found. Please try again.")))
+            
+          
 
-; Replace the println expression with your own code
+      (do
+        (println "Invalid input. Please enter a valid 8-digit student ID.")))))
+            
+
 (defn option3
   [] ;parm(s) can be provided here, if needed
 )
 
 ; Replace the println expression with your own code
 (defn option4
-  [] ;parm(s) can be provided here, if needed
-  (print "\nRunning the test code")
-)
+  [students] ;parm(s) can be provided here, if needed
+  (print "\nRunning the test code"))
+
   
 
 
@@ -71,13 +108,13 @@
      (option1 students)
     
      (if( = option "2")
-        (option2)
+        (option2 students)
        
         (if( = option "3")
-           (option3)  ; other args(s) can be passed here, if needed
+           (option3 students)  ; other args(s) can be passed here, if needed
           
            (if( = option "4")
-              (option4)   ; other args(s) can be passed here, if needed
+              (option4 students)   ; other args(s) can be passed here, if needed
               (println "Invalid Option, please try again"))))))
 
 
